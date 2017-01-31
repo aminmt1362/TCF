@@ -1,0 +1,5 @@
+## YAML Template.
+---
+solr:
+    remote-address: 192.168.61.01
+    port: 4646

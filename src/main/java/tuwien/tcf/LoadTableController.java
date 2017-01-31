@@ -19,9 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
  * @author amin
  */
 @RestController
+@RequestMapping(value="/{userid}/tableprocessing")
 public class LoadTableController {
-    
-    @RequestMapping(value="/loadtable", method = POST)
+       
+    @RequestMapping(value="/importtable", method = POST)
     public HttpEntity<LoadTable> loadTable(
             @RequestBody LoadTable loadtable) {
 

@@ -16,16 +16,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class MyService {
 
-    private final SolrProperties properties;
+    private final AppProperties properties;
 
     @Autowired
-    public MyService(SolrProperties properties) {
+    public MyService(AppProperties properties) {
         this.properties = properties;
     }
 
     @PostConstruct
     public void openConnection() {
-        System.out.print(this.properties.getPort());
+        System.out.print(this.properties.getName());
         // ...
     }
 }

@@ -41,7 +41,7 @@ import tuwien.tcf.helper.Utils;
 import tuwien.tcf.model.RCell;
 import tuwien.tcf.model.RowCell;
 import tuwien.tcf.model.RowData;
-import tuwien.tcf.model.Table;
+import tuwien.tcf.model.TableModel;
 
 /**
  *
@@ -52,7 +52,7 @@ public class GroundTruth {
 
     private final AppProperties properties;
 
-    private Map<String, List<Table>> groundTruthTables = new HashMap<>();
+    private Map<String, List<TableModel>> groundTruthTables = new HashMap<>();
     private List<JsonNode> groundTruthNodes = new ArrayList<>();
     private List<JSONObject> groundTruthObjects = new ArrayList<>();
     private List<JsonObject> groundTruthGObjects = new ArrayList<>();
@@ -85,8 +85,8 @@ public class GroundTruth {
                         
                         this.groundTruthNodes.add(actualObj);
 
-                        JSONObject json = new JSONObject(jsonTxt);
-                        this.groundTruthObjects.add(json);
+//                        JSONObject json = new JSONObject(jsonTxt);
+//                        this.groundTruthObjects.add(json);
                         /*Table newTable = mapJsonToObject(json);
                         List<Table> tables = this.groundTruthTables.get(newTable.getFileID());
 
@@ -112,7 +112,7 @@ public class GroundTruth {
                 }
             });
         }
-        printGroundTruhTables();
+//        printGroundTruhTables();
     }
 
     /**
@@ -121,8 +121,8 @@ public class GroundTruth {
      * @param jsonObject
      * @return
      */
-    private Table mapJsonToObject(JSONObject jsonObject) {
-        Table retTable = new Table();
+    private TableModel mapJsonToObject(JSONObject jsonObject) {
+        TableModel retTable = new TableModel();
         retTable.setFileID(jsonObject.getString("fileid"));
         retTable.setHeader(jsonObject.getString("header"));
         JSONArray jsona = jsonObject.getJSONArray("rows");

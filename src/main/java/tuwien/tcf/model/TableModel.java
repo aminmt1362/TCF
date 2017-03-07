@@ -5,6 +5,7 @@
  */
 package tuwien.tcf.model;
 
+import com.google.gson.JsonObject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +14,11 @@ import java.util.List;
  *
  * @author amin
  */
-public final class Table implements Serializable {
+public final class TableModel implements Serializable {
     private String FileID = "";
     private Integer TableCounter = 0;
     private String Header = "";
+    private JsonObject rows;
     private List<RowData> rowDatas = new ArrayList<>();
     
     /**
@@ -81,6 +83,20 @@ public final class Table implements Serializable {
      */
     public void setTableCounter(Integer TableCounter) {
         this.TableCounter = TableCounter;
+    }
+
+    /**
+     * @return the rows
+     */
+    public JsonObject getRows() {
+        return rows;
+    }
+
+    /**
+     * @param rows the rows to set
+     */
+    public void setRows(JsonObject rows) {
+        this.rows = rows;
     }
     
     

@@ -5,10 +5,12 @@
  */
 package tuwien.tcf.process;
 
-import com.google.gson.JsonObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import tuwien.tcf.model.TableModel;
+
 
 /**
  *
@@ -16,16 +18,16 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserTables {
-    private List<JsonObject> userTables = new ArrayList<>();
+    private List<TableModel> userTables = new ArrayList<>();
     
-    public void addUserTable(JsonObject userTable) {
+    public void addUserTable(TableModel userTable) {
         this.getUserTables().add(userTable);
     }
 
     /**
      * @return the userTables
      */
-    public List<JsonObject> getUserTables() {
+    public List<TableModel> getUserTables() {
         return userTables;
     }
 }

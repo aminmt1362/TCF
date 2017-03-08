@@ -47,10 +47,10 @@ public class Table {
             
             TableModel table = new TableModel();
             table.setHeader(jsobj.get("header").getAsString());
-            table.setFileID(jsobj.get("fileud").getAsString());
+            table.setFileID(jsobj.get("fileid").getAsString());
             table.setRows(jsobj);
-            
-            userTables.addUserTable(jsobj);
+
+            userTables.addUserTable(table);
         } catch (Exception jse) {
             Logger.getLogger(Table.class.getName()).log(Level.SEVERE, jse.getMessage());
             HttpContentResponse hcr = new HttpContentResponse(HttpContentResponse.ContentNotApproved);

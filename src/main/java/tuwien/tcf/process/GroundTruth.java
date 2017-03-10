@@ -52,7 +52,8 @@ public class GroundTruth {
 
     private final AppProperties properties;
 
-    private Map<String, List<TableModel>> groundTruthTables = new HashMap<>();
+    //private Map<String, List<TableModel>> groundTruthTables = new HashMap<>();
+    private List<TableModel> groundTruthTables = new ArrayList<>();
     private List<JsonNode> groundTruthNodes = new ArrayList<>();
     private List<JSONObject> groundTruthObjects = new ArrayList<>();
     private List<JsonObject> groundTruthGObjects = new ArrayList<>();
@@ -82,8 +83,13 @@ public class GroundTruth {
                         JsonElement jelement = parser.parse(jsonTxt);
                         JsonObject jsobj = jelement.getAsJsonObject();
                         getGroundTruthGObjects().add(jsobj);
+
+                        TableModel table = new TableModel();
+                        table.setHeader(jsobj.get("header").getAsString());
+                        table.setFileID(jsobj.get("fileid").getAsString());
+                        table.setRows(jsobj);
                         
-                        this.groundTruthNodes.add(actualObj);
+                        getGroundTruthTables().add(table);
 
 //                        JSONObject json = new JSONObject(jsonTxt);
 //                        this.groundTruthObjects.add(json);
@@ -233,5 +239,19 @@ public class GroundTruth {
      */
     public List<JsonObject> getGroundTruthGObjects() {
         return groundTruthGObjects;
+    }
+
+    /**
+     * @return the groundTruthTables
+     */
+    public List<TableModel> getGroundTruthTables() {
+        return groundTruthTables;
+    }
+
+    /**
+     * @param groundTruthTables the groundTruthTables to set
+     */
+    public void setGroundTruthTables(List<TableModel> groundTruthTables) {
+        this.groundTruthTables = groundTruthTables;
     }
 }

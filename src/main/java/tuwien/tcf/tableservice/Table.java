@@ -15,11 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import tuwien.tcf.model.HttpContentResponse;
 import tuwien.tcf.model.TableModel;
+import tuwien.tcf.process.Score;
 import tuwien.tcf.process.UserTables;
 
 /**
@@ -30,7 +32,10 @@ import tuwien.tcf.process.UserTables;
 public class Table {
     
     @Autowired
-    UserTables userTables;
+    private UserTables userTables;
+    
+    @Autowired
+    private Score score;
 
     /**
      *
@@ -52,6 +57,19 @@ public class Table {
 
             userTables.addUserTable(table);
         } catch (Exception jse) {
+            Logger.getLogger(Table.class.getName()).log(Level.SEVERE, jse.getMessage());
+            HttpContentResponse hcr = new HttpContentResponse(HttpContentResponse.ContentNotApproved);
+            return new ResponseEntity<>(hcr, HttpStatus.OK);
+        } 
+        HttpContentResponse hcr = new HttpContentResponse(HttpContentResponse.ContentApproved);
+        return new ResponseEntity(hcr, HttpStatus.ACCEPTED);
+    }
+    
+    @GetMapping("/calculateScore")
+    public HttpEntity<?> calculateScore() {
+        try {
+            score.calculateScoring();
+        }catch (Exception jse) {
             Logger.getLogger(Table.class.getName()).log(Level.SEVERE, jse.getMessage());
             HttpContentResponse hcr = new HttpContentResponse(HttpContentResponse.ContentNotApproved);
             return new ResponseEntity<>(hcr, HttpStatus.OK);

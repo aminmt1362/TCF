@@ -34,7 +34,7 @@ public final class JsonCompare {
      *
      * @param t1 Ground truth table
      * @param t2 User Imported Table
-     * @return 
+     * @return
      */
     public CompareResult compareJsonRows(JsonObject t1, JsonObject t2) {
 
@@ -46,13 +46,13 @@ public final class JsonCompare {
         globalLastKey = "rows";
 
         Map<String, List<String>> gt = new LinkedHashMap<>();
-        
+
         cellCounter = 0;
-        
+
         extractCells(rows, gt);
         compareResult.setGroundTruthTable(gt);
         compareResult.setGroundTruthTableCellCounter(cellCounter);
-        
+
         cellCounter = 0;
 
         JsonElement rows2 = t2.get("rows");
@@ -60,20 +60,88 @@ public final class JsonCompare {
         globalLastKey = "rows";
         Map<String, List<String>> ut = new LinkedHashMap<>();
         extractCells(rows2, ut);
-        
+
         compareResult.setUserTable(ut);
         compareResult.setUserTableCounter(cellCounter);
 
         return compareResult;
     }
-    
+
     /**
      * Compares columns of rows from two json tables
+     *
      * @param t1
-     * @param t2 
+     * @param t2
      */
-    private void compareColumnJsonRows(JsonObject t1, JsonObject t2) {
+    public CompareColumnResult compareColumnJsonRows(JsonObject t1, JsonObject t2) {
+        CompareColumnResult columnResult = new CompareColumnResult();
         
+        Map<String, String> gtt = new LinkedHashMap<>();
+        JsonElement rowsGt = t1.get("rows");
+
+        globalLastKey = "rows";
+        cellCounter = 0;
+        extractColumns(rowsGt, gtt);
+        columnResult.setGroundTruthTable(gtt);
+        columnResult.setGroundTruthTableCellCounter(cellCounter);
+        
+        
+        
+        Map<String, String> utt = new LinkedHashMap<>();
+        JsonElement rowsUt = t2.get("rows");
+        cellCounter = 0;
+        globalLastKey = "rows";
+        extractColumns(rowsUt, utt);
+        columnResult.setUserTable(utt);
+        columnResult.setUserTableCounter(cellCounter);
+
+        return columnResult;
+    }
+
+    /**
+     * Extracts all columns from json object and puts into an hashmap
+     *
+     * @param jsonElement
+     * @param map
+     */
+    private void extractColumns(JsonElement jsonElement, Map<String, String> map) {
+
+        // Check whether jsonElement is JsonObject or not
+        if (jsonElement.isJsonObject()) {
+            Set<Entry<String, JsonElement>> ens = ((JsonObject) jsonElement).entrySet();
+            if (ens != null) {
+                // Iterate JSON Elements with Key values
+                for (Entry<String, JsonElement> en : ens) {
+                    System.out.println(en.getKey() + " : ");
+                    //String val = 
+                    globalLastKey = en.getKey();
+                    extractColumns(en.getValue(), map);
+
+                    //json1.put(en.getKey(), val);
+                }
+            }
+        } // Check whether jsonElement is Arrary or not
+        else if (jsonElement.isJsonArray()) {
+            JsonArray jarr = jsonElement.getAsJsonArray();
+            // Iterate JSON Array to JSON Elements
+//            this.add(jsonElement.toString(), map);
+            map.put(globalLastKey, jsonElement.toString());
+
+            for (JsonElement je : jarr) {
+                extractColumns(je, map);
+            }
+        } // Check whether jsonElement is NULL or not
+        else if (jsonElement.isJsonNull()) {
+            // print null
+            System.out.println("null");
+        } // Check whether jsonElement is Primitive or not
+        else if (jsonElement.isJsonPrimitive()) {
+            // print value as String
+            cellCounter = cellCounter + 1;
+//            this.add(jsonElement.getAsString(), jsonElement.getAsString());
+            map.put(globalLastKey, jsonElement.getAsString());
+            System.out.println(jsonElement.getAsString());
+        }
     }
 
     /**

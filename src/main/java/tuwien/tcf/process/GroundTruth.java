@@ -87,6 +87,7 @@ public class GroundTruth {
                         TableModel table = new TableModel();
                         table.setHeader(jsobj.get("header").getAsString());
                         table.setFileID(jsobj.get("fileid").getAsString());
+                        table.setTableCounter(Integer.valueOf(jsobj.get("tablecounter").toString()));
                         table.setRows(jsobj);
                         
                         getGroundTruthTables().add(table);

@@ -36,9 +36,13 @@ public class Utils {
             System.out.print(me.getKey() + ": ");
             System.out.println(me.getValue());
             JsonElement j2element = t2.get(me.getKey().toString());
+            
             j2element.getAsString();
         }
     }
+    
+    
+    
     
     // GET ALL FIELDS AS WELL AS ARRAYS IN A FLAT LIST
 }

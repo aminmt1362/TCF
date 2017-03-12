@@ -53,6 +53,7 @@ public class Table {
             TableModel table = new TableModel();
             table.setHeader(jsobj.get("header").getAsString());
             table.setFileID(jsobj.get("fileid").getAsString());
+            table.setTableCounter(Integer.parseInt(jsobj.get("tablecounter").toString()));
             table.setRows(jsobj);
 
             userTables.addUserTable(table);

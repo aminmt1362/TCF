@@ -68,15 +68,17 @@ public class Table {
     
     @GetMapping("/calculateScore")
     public HttpEntity<?> calculateScore() {
+        Double retValue = Double.valueOf(0);
         try {
-            score.calculateScoring();
+            retValue = score.calculateScoring();
         }catch (Exception jse) {
             Logger.getLogger(Table.class.getName()).log(Level.SEVERE, jse.getMessage());
             HttpContentResponse hcr = new HttpContentResponse(HttpContentResponse.ContentNotApproved);
             return new ResponseEntity<>(hcr, HttpStatus.OK);
         } 
-        HttpContentResponse hcr = new HttpContentResponse(HttpContentResponse.ContentApproved);
-        return new ResponseEntity(hcr, HttpStatus.ACCEPTED);
+        HttpContentResponse hcr = new HttpContentResponse(String.format(HttpContentResponse.ScoreValue, retValue));
+        
+        return new ResponseEntity(hcr, HttpStatus.OK);
     }
 
 }

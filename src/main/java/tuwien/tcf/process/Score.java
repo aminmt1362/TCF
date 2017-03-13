@@ -36,9 +36,9 @@ public final class Score {
     @Autowired
     UserTables userTables;
 
-    public void calculateScoring() {
+    public Double calculateScoring() {
 
-        Integer scoreValue = 0;
+        Double scoreValue = Double.valueOf(0);
         Integer maxScoreVal = groundTruth.getGroundTruthTables().size();
         Integer userTableFoundCounter = 0;
 
@@ -60,14 +60,17 @@ public final class Score {
 
                 Double structureScore = structureScoring(gtTable, userTable);
                 
+                Double tableScore = (cellScore + columnScore + rowScore + structureScore) / 4;
+                
+                scoreValue += tableScore;
                 userTableFoundCounter++;
             } catch (Exception ee) {
                 LOGGER.log(Level.SEVERE, ee.getMessage());
-                // A whole table is missing
-                maxScoreVal--;
             }
         }
-
+        scoreValue = scoreValue / maxScoreVal;
+        
+        return scoreValue;
     }
 
     /**
@@ -207,22 +210,25 @@ public final class Score {
 
         // MAX SCORE BASED ON ALL GT CELLS
         Integer maxScore = 0;
+        
+        Iterator<Entry<String, List<String>>> it = compareResult.getGroundTruthTable().entrySet().iterator();
+         while (it.hasNext()) {
+            Entry<String, List<String>> gtcell = it.next();
+            maxScore += gtcell.getValue().size();
+         }
+        
 
         // SUBSTRACT MISSING CELLS
 //        Integer calcCellScore = maxScore - (compareResult.getGroundTruthTableCellCounter() - compareResult.getUserTableCounter());
 
         // Compare CEll Content
-        Iterator<Entry<String, List<String>>> it = compareResult.getGroundTruthTable().entrySet().iterator();
+        it = compareResult.getGroundTruthTable().entrySet().iterator();
         Set<Entry<String, List<String>>> userTableCells = compareResult.getUserTable().entrySet();
 
         // Compare row count
         Integer subtractIncorrectSizeOfRows = 0;
         while (it.hasNext()) {
             Entry<String, List<String>> gtcell = it.next();
-            
-            if(gtcell.getValue().size() > maxScore) {
-                maxScore = gtcell.getValue().size();
-            }
 
             Predicate<Entry<String, List<String>>> gtSpecificCell = c -> c.getKey().equals(gtcell.getKey());
 
@@ -283,6 +289,7 @@ public final class Score {
         
         Set<Entry<String, List<String>>> userTableCells = compareResult.getUserTable().entrySet();
 
+        it = compareResult.getGroundTruthTable().entrySet().iterator();
         // Compare row count
         Integer subtractIncorrectSizeOfRows = 0;
         Integer mainKeySize = 0;
@@ -290,10 +297,6 @@ public final class Score {
             Entry<String, List<String>> gtcell = it.next();
             mainKeySize = gtcell.getValue().size();
             
-            if(gtcell.getValue().size() > maxScore) {
-                maxScore = gtcell.getValue().size();
-            }
-
             Predicate<Entry<String, List<String>>> gtSpecificCell = c -> c.getKey().equals(gtcell.getKey());
 
             try {
@@ -302,13 +305,13 @@ public final class Score {
                 // Subtract any difference
                 if (gtcell.getValue().size() != userCell.getValue().size()) {
 //                    if (Math.abs(gtcell.getValue().size() - userCell.getValue().size()) > subtractIncorrectSizeOfRows) {
-                        maxScore -= Math.abs(gtcell.getValue().size() - userCell.getValue().size());
+                        subtractIncorrectSizeOfRows += Math.abs(gtcell.getValue().size() - userCell.getValue().size());
 //                    }
                 }
 
             } catch (Exception ee) {
                 // A main key was not found
-                maxScore -= mainKeySize;
+                subtractIncorrectSizeOfRows += mainKeySize;
             }
         }
         

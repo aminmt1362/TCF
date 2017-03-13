@@ -51,11 +51,15 @@ public final class Score {
             try {
 
                 TableModel gtTable = gt.stream().filter(predicate).filter(prediate2).findFirst().get();
-                
-                Double cellScore = cellScoring(gtTable, userTable);
-                
-                Double columnScore = columnScoring(gtTable, userTable);
 
+                Double cellScore = cellScoring(gtTable, userTable);
+
+                Double columnScore = columnScoring(gtTable, userTable);
+                
+                Double rowScore = rowScoring(gtTable, userTable);
+
+                Double structureScore = structureScoring(gtTable, userTable);
+                
                 userTableFoundCounter++;
             } catch (Exception ee) {
                 LOGGER.log(Level.SEVERE, ee.getMessage());
@@ -64,7 +68,6 @@ public final class Score {
             }
         }
 
-        
     }
 
     /**
@@ -137,35 +140,36 @@ public final class Score {
 
     /**
      * Calculates the column scoring and returns the score value
+     *
      * @param gtTable ground truth table
-     * @param userTable  user imported table
+     * @param userTable user imported table
      */
     public Double columnScoring(TableModel gtTable, TableModel userTable) {
         LOGGER.log(Level.INFO, "Start calculating Column Scoring");
 
         Integer columnScore = 0;
-        
+
         JsonCompare jc = new JsonCompare();
 
-        CompareColumnResult  compareResult = jc.compareColumnJsonRows(gtTable.getRows(), userTable.getRows());
-        
+        CompareColumnResult compareResult = jc.compareColumnJsonRows(gtTable.getRows(), userTable.getRows());
+
         Integer maxScore = compareResult.getGroundTruthTableCellCounter();
-        
+
         Integer calcColumnScore = maxScore - (compareResult.getGroundTruthTableCellCounter() - compareResult.getUserTableCounter());
 
         Iterator<Entry<String, String>> it = compareResult.getGroundTruthTable().entrySet().iterator();
         Set<Entry<String, String>> userTableCells = compareResult.getUserTable().entrySet();
-        
+
         while (it.hasNext()) {
             Entry<String, String> gtcell = it.next();
-            
+
             Predicate<Entry<String, String>> gtSpecificCell = c -> c.getKey().equals(gtcell.getKey());
 
             try {
                 Entry<String, String> userCell = userTableCells.stream().filter(gtSpecificCell).findAny().get();
-                
-                if(!gtcell.getKey().equals(userCell.getKey())) {
-                  calcColumnScore--;  
+
+                if (!gtcell.getKey().equals(userCell.getKey())) {
+                    calcColumnScore--;
                 }
 
 //                for (String cell : gtcell.getKey()) {
@@ -179,16 +183,140 @@ public final class Score {
 
             }
         }
-        
+
         return Double.parseDouble(calcColumnScore.toString()) / maxScore;
     }
 
-    public void rowScoring() {
+    /**
+     * Calculates the row scoring of user table and returns a double value of
+     * the score between 0 and 1
+     *
+     * @param gtTable : Ground truth table
+     * @param userTable : user table
+     * @return
+     */
+    public Double rowScoring(TableModel gtTable, TableModel userTable) {
         LOGGER.log(Level.INFO, "Start calculating Row Scoring");
+
+        Double rowScore;
+//        // get first userTable table and find the same in groundTruth
+
+        // Compare row cells
+        JsonCompare jc = new JsonCompare();
+        CompareResult compareResult = jc.compareJsonRows(gtTable.getRows(), userTable.getRows());
+
+        // MAX SCORE BASED ON ALL GT CELLS
+        Integer maxScore = 0;
+
+        // SUBSTRACT MISSING CELLS
+//        Integer calcCellScore = maxScore - (compareResult.getGroundTruthTableCellCounter() - compareResult.getUserTableCounter());
+
+        // Compare CEll Content
+        Iterator<Entry<String, List<String>>> it = compareResult.getGroundTruthTable().entrySet().iterator();
+        Set<Entry<String, List<String>>> userTableCells = compareResult.getUserTable().entrySet();
+
+        // Compare row count
+        Integer subtractIncorrectSizeOfRows = 0;
+        while (it.hasNext()) {
+            Entry<String, List<String>> gtcell = it.next();
+            
+            if(gtcell.getValue().size() > maxScore) {
+                maxScore = gtcell.getValue().size();
+            }
+
+            Predicate<Entry<String, List<String>>> gtSpecificCell = c -> c.getKey().equals(gtcell.getKey());
+
+            try {
+                Entry<String, List<String>> userCell = userTableCells.stream().filter(gtSpecificCell).findAny().get();
+
+                // Subtract any difference
+                if (gtcell.getValue().size() != userCell.getValue().size()) {
+//                    if (Math.abs(gtcell.getValue().size() - userCell.getValue().size()) > subtractIncorrectSizeOfRows) {
+                        subtractIncorrectSizeOfRows += Math.abs(gtcell.getValue().size() - userCell.getValue().size());
+//                    }
+                }
+
+            } catch (Exception ee) {
+                // A column was not found
+
+            }
+        }
+        
+        
+
+        rowScore = Double.valueOf((maxScore - subtractIncorrectSizeOfRows)) / maxScore;
+
+        return rowScore;
     }
 
-    public void structureScoring() {
+    /**
+     * Calculates the structure scoring of Ground truth table with the user user table and returns a score value
+     * @param gtTable ground truth table
+     * @param userTable user table
+     * @return Double score value
+     */
+    public Double structureScoring(TableModel gtTable, TableModel userTable) {
         LOGGER.log(Level.INFO, "Start calculating Structure Scoring");
+        
+        Double rowScore;
+//        // get first userTable table and find the same in groundTruth
+
+        // Compare row cells
+        JsonCompare jc = new JsonCompare();
+        CompareResult compareResult = jc.compareJsonRows(gtTable.getRows(), userTable.getRows());
+
+        // MAX SCORE BASED ON ALL GT CELLS
+        Integer maxScore = compareResult.getGroundTruthTable().size();
+        
+        
+
+        // SUBSTRACT MISSING CELLS
+//        Integer calcCellScore = maxScore - (compareResult.getGroundTruthTableCellCounter() - compareResult.getUserTableCounter());
+
+        // Calculate maxscore
+        Iterator<Entry<String, List<String>>> it = compareResult.getGroundTruthTable().entrySet().iterator();
+         while (it.hasNext()) {
+            Entry<String, List<String>> gtcell = it.next();
+            maxScore += gtcell.getValue().size();
+         }
+        
+        
+        Set<Entry<String, List<String>>> userTableCells = compareResult.getUserTable().entrySet();
+
+        // Compare row count
+        Integer subtractIncorrectSizeOfRows = 0;
+        Integer mainKeySize = 0;
+        while (it.hasNext()) {
+            Entry<String, List<String>> gtcell = it.next();
+            mainKeySize = gtcell.getValue().size();
+            
+            if(gtcell.getValue().size() > maxScore) {
+                maxScore = gtcell.getValue().size();
+            }
+
+            Predicate<Entry<String, List<String>>> gtSpecificCell = c -> c.getKey().equals(gtcell.getKey());
+
+            try {
+                Entry<String, List<String>> userCell = userTableCells.stream().filter(gtSpecificCell).findAny().get();
+
+                // Subtract any difference
+                if (gtcell.getValue().size() != userCell.getValue().size()) {
+//                    if (Math.abs(gtcell.getValue().size() - userCell.getValue().size()) > subtractIncorrectSizeOfRows) {
+                        maxScore -= Math.abs(gtcell.getValue().size() - userCell.getValue().size());
+//                    }
+                }
+
+            } catch (Exception ee) {
+                // A main key was not found
+                maxScore -= mainKeySize;
+            }
+        }
+        
+        
+
+        rowScore = Double.valueOf((maxScore - subtractIncorrectSizeOfRows)) / maxScore;
+
+        return rowScore;
     }
 
 }

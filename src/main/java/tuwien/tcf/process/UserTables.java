@@ -30,4 +30,11 @@ public class UserTables {
     public List<TableModel> getUserTables() {
         return userTables;
     }
+    
+    /**
+     * Delete all tables
+     */
+    public void deleteAll() {
+        this.userTables.clear();
+    }
 }

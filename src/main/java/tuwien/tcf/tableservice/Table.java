@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,6 +37,14 @@ public class Table {
     
     @Autowired
     private Score score;
+    
+    
+    @DeleteMapping("/deleteUserTable")
+    public HttpEntity<?> deleteTables() {
+        userTables.deleteAll();
+        HttpContentResponse hcr = new HttpContentResponse(HttpContentResponse.ContentApproved);
+        return new ResponseEntity(hcr, HttpStatus.ACCEPTED);
+    }
 
     /**
      *
